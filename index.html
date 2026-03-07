@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RoomPlanz — Offline 2D Layout (mm-precise, SVG)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9590368660283003"
+     crossorigin="anonymous"></script>
+<body>
+  <header class="app-header" role="banner">
+    <h1 tabindex="0">RoomPlanz</h1>
+    <div class="header-actions" role="toolbar" aria-label="Global actions">
+      <button id="btn-fit" title="Fit to room">Fit</button>
+      <button id="btn-reset-view" title="Reset view">Reset</button>
+      <div class="zoom-controls">
+        <button id="zoom-out" title="Zoom out">−</button>
+        <output id="zoom-level" aria-live="polite">100%</output>
+        <button id="zoom-in" title="Zoom in">+</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="layout" role="main">
+    <section id="input-panel" class="panel left" aria-label="Input Panel">
+      <button id="btn-collapse-left" class="collapse-btn left" type="button" aria-controls="input-panel" aria-expanded="true" title="Hide left panel">⟨</button>
+      <h2>Room</h2>
+      <form id="room-form" novalidate>
+        <label for="room-width">Width (mm)</label>
+        <input id="room-width" name="roomWidth" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="room-width-err" required />
+        <div class="err" id="room-width-err" role="alert" aria-live="polite"></div>
+
+        <label for="room-height">Height (mm)</label>
+        <input id="room-height" name="roomHeight" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="room-height-err" required />
+        <div class="err" id="room-height-err" role="alert" aria-live="polite"></div>
+
+        <div class="form-row">
+          <label><input type="checkbox" id="toggle-grid" /> Show grid</label>
+        </div>
+        <div class="form-row">
+          <label for="grid-spacing">Grid spacing</label>
+          <select id="grid-spacing">
+            <option value="100">100 mm</option>
+            <option value="250">250 mm</option>
+            <option value="500">500 mm</option>
+            <option value="1000">1000 mm</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label><input type="checkbox" id="snap-grid" /> Snap to grid</label>
+        </div>
+        <div class="form-row">
+          <label><input type="checkbox" id="snap-rotation" /> Snap rotation (90°)</label>
+        </div>
+
+        <h3 style="margin-top:1rem; font-size:0.9rem; color: var(--accent-2);">Rotate Room</h3>
+        <div class="rotate-room-controls">
+          <button id="btn-rotate-room-left" type="button" class="rotate-room-btn" title="Rotate room 90° left">↺ 90°</button>
+          <button id="btn-rotate-room-right" type="button" class="rotate-room-btn" title="Rotate room 90° right">↻ 90°</button>
+        </div>
+        <div class="form-row" style="margin-top:.75rem;">
+          <button id="btn-clear-room" type="button" class="danger" title="Remove all objects from this room">Clear room…</button>
+        </div>
+      </form>
+
+      <h2>Create</h2>
+      <form id="create-form" class="create" novalidate>
+        <div class="create-list">
+          <button id="add-rect" type="button" class="create-btn">
+            <svg class="shape-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="6" width="18" height="12" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+            <span>Rectangle</span>
+          </button>
+          <button id="add-square" type="button" class="create-btn">
+            <svg class="shape-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="5" y="5" width="14" height="14" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+            <span>Square</span>
+          </button>
+          <button id="add-circle" type="button" class="create-btn">
+            <svg class="shape-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+            <span>Circle</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="help">
+        <details>
+          <summary>Tips</summary>
+          <ul>
+            <li>Drag background to pan. Scroll (two-finger) to pan; hold Cmd/Ctrl while scrolling to zoom. Rotate via the ↺/↻ buttons above a selected object.</li>
+            <li>Click an object to select. Drag to move. Handles resize/rotate.</li>
+          </ul>
+        </details>
+      </div>
+      <h2>Export / Import</h2>
+      <div class="export-import">
+        <div class="export-row">
+          <button id="btn-export-json" type="button">Export JSON</button>
+          <button id="btn-import-json" type="button">Import JSON</button>
+          <input id="import-json-input" type="file" accept="application/json" style="display:none;" />
+        </div>
+        <div class="err" id="import-json-err" role="alert" aria-live="polite"></div>
+        <fieldset class="jpeg-fieldset">
+          <legend>JPEG export</legend>
+          <label for="jpeg-width">Width (px)</label>
+          <input id="jpeg-width" type="text" inputmode="numeric" pattern="^\\d+$" value="2000" />
+          <div class="form-row">
+            <label><input type="checkbox" id="jpeg-include-grid" checked /> Include grid</label>
+          </div>
+          <div class="form-row">
+            <label><input type="checkbox" id="jpeg-include-labels" checked /> Include labels</label>
+          </div>
+          <button id="btn-export-jpeg" type="button">Export JPEG</button>
+          <div class="err" id="jpeg-err" role="alert" aria-live="polite"></div>
+        </fieldset>
+      </div>
+    </section>
+    <section id="workspace" class="center" aria-label="Canvas Workspace">
+      <div id="canvas-wrapper" class="canvas-wrapper" tabindex="0" aria-label="Workspace canvas" aria-live="polite">
+        <svg id="svg-root" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="Room layout">
+          <defs>
+            <pattern id="grid-pattern" patternUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+              <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#d0d0d0" stroke-width="0.5" shape-rendering="crispEdges" />
+            </pattern>
+          </defs>
+          <g id="viewport" transform="translate(0,0) scale(1)">
+            <g id="room-layer"></g>
+            <g id="grid-layer" visibility="hidden"></g>
+            <g id="object-layer" stroke-linejoin="round" stroke-linecap="round"></g>
+            <g id="overlay-layer"></g>
+          </g>
+        </svg>
+      </div>
+      <!-- Expand tabs overlayed on the workspace so they don't affect grid layout -->
+      <div class="workspace-expands" aria-hidden="false">
+        <button id="btn-expand-left" class="expand-tab expand-left" type="button" aria-controls="input-panel" aria-expanded="true" title="Show left panel">›</button>
+        <button id="btn-expand-right" class="expand-tab expand-right" type="button" aria-controls="properties-panel" aria-expanded="true" title="Show right panel">‹</button>
+      </div>
+    </section>
+
+    <section id="properties-panel" class="panel right" aria-label="Properties & Export Panel">
+      <button id="btn-collapse-right" class="collapse-btn right" type="button" aria-controls="properties-panel" aria-expanded="true" title="Hide right panel">⟩</button>
+      <h2>Properties</h2>
+      <form id="props-form" novalidate>
+        <div id="no-selection">
+          <div class="notice">Select an object to edit its properties.</div>
+          <div id="object-list-container">
+            <h3 style="margin-top:1rem; font-size:0.9rem; color: var(--accent-2);">Objects (front to back)</h3>
+            <ul id="object-list" class="object-list"></ul>
+          </div>
+        </div>
+        <div id="props-fields" class="hidden">
+          <label for="prop-name">Name</label>
+          <input id="prop-name" type="text" />
+
+          <label for="prop-type">Shape</label>
+          <select id="prop-type">
+            <option value="rect">Rectangle</option>
+            <option value="square">Square</option>
+            <option value="circle">Circle</option>
+          </select>
+
+          <div id="dim-rect">
+            <label for="prop-width">Width (mm)</label>
+            <input id="prop-width" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-width-err" />
+            <div class="err" id="prop-width-err" role="alert" aria-live="polite"></div>
+
+            <label for="prop-height">Height (mm)</label>
+            <input id="prop-height" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-height-err" />
+            <div class="err" id="prop-height-err" role="alert" aria-live="polite"></div>
+          </div>
+
+          <div id="dim-circle" class="hidden">
+            <label for="prop-radius">Radius (mm)</label>
+            <input id="prop-radius" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-radius-err" />
+            <div class="err" id="prop-radius-err" role="alert" aria-live="polite"></div>
+          </div>
+
+          <label for="prop-x">Center X (mm)</label>
+          <input id="prop-x" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-x-err" />
+          <div class="err" id="prop-x-err" role="alert" aria-live="polite"></div>
+
+          <label for="prop-y">Center Y (mm)</label>
+          <input id="prop-y" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-y-err" />
+          <div class="err" id="prop-y-err" role="alert" aria-live="polite"></div>
+
+          <label for="prop-rot">Rotation (°)</label>
+          <input id="prop-rot" type="text" inputmode="numeric" pattern="^-?\\d+$" aria-describedby="prop-rot-err" />
+          <div class="err" id="prop-rot-err" role="alert" aria-live="polite"></div>
+
+          <h3 style="margin-top:1rem; font-size:0.9rem; color: var(--accent-2);">Z-Order</h3>
+          <div class="z-order-controls">
+            <button id="btn-to-front" type="button" title="Bring to front">▲▲ Front</button>
+            <button id="btn-forward" type="button" title="Bring forward">▲ Forward</button>
+            <button id="btn-backward" type="button" title="Send backward">▼ Backward</button>
+            <button id="btn-to-back" type="button" title="Send to back">▼▼ Back</button>
+          </div>
+
+          <label for="prop-fill">Fill</label>
+          <input id="prop-fill" type="color" value="#7ec8e3" />
+
+          <label for="prop-stroke">Border</label>
+          <input id="prop-stroke" type="color" value="#144663" />
+
+          <label for="prop-thick">Border thickness (mm)</label>
+          <input id="prop-thick" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-thick-err" />
+          <div class="err" id="prop-thick-err" role="alert" aria-live="polite"></div>
+
+          <div id="corner-rect">
+            <label for="prop-corner">Corner radius (mm)</label>
+            <input id="prop-corner" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-corner-err" />
+            <div class="err" id="prop-corner-err" role="alert" aria-live="polite"></div>
+          </div>
+
+          <label for="prop-label-size">Label text size (px)</label>
+          <input id="prop-label-size" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-label-size-err" />
+          <div class="err" id="prop-label-size-err" role="alert" aria-live="polite"></div>
+
+          <div class="form-row">
+            <label><input id="prop-label" type="checkbox" checked /> Show label</label>
+          </div>
+
+          <div class="prop-actions">
+            <button id="btn-duplicate" type="button" title="Duplicate">Duplicate</button>
+            <button id="btn-delete" type="button" title="Delete">Delete</button>
+          </div>
+        </div>
+      </form>
+
+      
+
+      <details class="user-guide">
+        <summary>User guide</summary>
+        <div id="user-guide-content"></div>
+      </details>
+    </section>
+  </main>
+
+  <!-- Clear Room Modal -->
+  <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title-clear">
+    <div class="modal">
+      <h3 id="modal-title-clear" style="margin:0 0 .5rem; font-size:1rem; color: var(--accent-2);">Clear room?</h3>
+      <p style="margin:.25rem 0 .75rem; color: var(--muted);">This will remove all objects from the room. This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button id="btn-confirm-clear" type="button" class="danger">Yes, clear room</button>
+        <button id="btn-cancel-clear" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer" role="contentinfo">
+    <small>Runs fully in-browser. No network calls. All measurements stored as integer millimetres.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
