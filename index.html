@@ -10,7 +10,7 @@
      crossorigin="anonymous"></script>
 <body>
   <header class="app-header" role="banner">
-    <h1 tabindex="0">RoomPlanz</h1>
+    <h1 tabindex="0">Room Planner</h1>
     <div class="header-actions" role="toolbar" aria-label="Global actions">
       <button id="btn-fit" title="Fit to room">Fit</button>
       <button id="btn-reset-view" title="Reset view">Reset</button>
@@ -31,7 +31,7 @@
         <input id="room-width" name="roomWidth" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="room-width-err" required />
         <div class="err" id="room-width-err" role="alert" aria-live="polite"></div>
 
-        <label for="room-height">Height (mm)</label>
+        <label for="room-height">Length (mm)</label>
         <input id="room-height" name="roomHeight" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="room-height-err" required />
         <div class="err" id="room-height-err" role="alert" aria-live="polite"></div>
 
@@ -170,7 +170,7 @@
             <input id="prop-width" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-width-err" />
             <div class="err" id="prop-width-err" role="alert" aria-live="polite"></div>
 
-            <label for="prop-height">Height (mm)</label>
+            <label for="prop-height">Length (mm)</label>
             <input id="prop-height" type="text" inputmode="numeric" pattern="^\\d+$" aria-describedby="prop-height-err" />
             <div class="err" id="prop-height-err" role="alert" aria-live="polite"></div>
           </div>
